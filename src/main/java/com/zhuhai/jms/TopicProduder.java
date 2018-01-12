@@ -37,9 +37,12 @@ public class TopicProduder {
         //6.创建生产者
         MessageProducer producer = session.createProducer(destination);
         //7.创建消息
-        TextMessage textMessage = session.createTextMessage("Hello, Topic Message!");
-        //8.发送消息
-        producer.send(textMessage);
+        for (int i = 0; i < 10; i++) {
+            TextMessage textMessage = session.createTextMessage("Hello, Topic Message!" + i);
+            //8.发送消息
+            producer.send(textMessage);
+        }
+
         //9.释放资源
         producer.close();
         session.close();
