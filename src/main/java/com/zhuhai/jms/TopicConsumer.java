@@ -44,9 +44,6 @@ public class TopicConsumer {
                 TextMessage textMessage = (TextMessage) message;
                 try {
                     System.out.println(textMessage.getText());
-                    if ("Hello, Topic Message!5".equals(textMessage.getText())) {
-                        System.out.println(10/0);
-                    }
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }

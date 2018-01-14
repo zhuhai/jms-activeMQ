@@ -40,6 +40,7 @@ public class RetryQueueConsumer {
         redeliveryPolicy.setUseExponentialBackOff(true);
         //递增倍数，默认为5
         redeliveryPolicy.setBackOffMultiplier(2);
+        //最大延迟时间，当重试时间间隔大于最大延迟时间时，以后每次重连时间都为最大延迟时间
         redeliveryPolicy.setMaximumRedeliveryDelay(10000L);
         connectionFactory.setRedeliveryPolicy(redeliveryPolicy);
 

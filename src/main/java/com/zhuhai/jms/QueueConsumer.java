@@ -43,9 +43,7 @@ public class QueueConsumer {
                 TextMessage textMessage = (TextMessage) message;
                 try {
                     System.out.println(textMessage.getText());
-                    if ("Hello,Queue Message!5".equals(textMessage.getText())) {
-                        System.out.println(10/0);
-                    }
+
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
