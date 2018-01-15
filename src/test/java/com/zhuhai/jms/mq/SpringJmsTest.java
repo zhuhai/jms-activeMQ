@@ -39,11 +39,11 @@ public class SpringJmsTest {
                 return textMessage;
             }
         });
-        System.in.read();
+        //System.in.read();
     }
 
     @Test
-    public void sendMessageToTopic() {
+    public void sendMessageToTopic() throws IOException {
         jmsTopicTemplate.send("message-topic", new MessageCreator() {
             @Override
             public Message createMessage(Session session) throws JMSException {
@@ -51,5 +51,9 @@ public class SpringJmsTest {
                 return textMessage;
             }
         });
+
+        System.in.read();
     }
+
+
 }
