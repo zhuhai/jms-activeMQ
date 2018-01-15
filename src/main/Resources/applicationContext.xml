@@ -2,7 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       xmlns:mvc="http://www.springframework.org/schema/context" xmlns:jms="http://www.springframework.org/schema/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd">
 
     <!--自动扫描-->
     <context:component-scan base-package="com.zhuhai"/>
@@ -15,7 +16,7 @@
     <!--配置重试参数-->
     <bean id="redeliveryPolicy" class="org.apache.activemq.RedeliveryPolicy">
         <!--配置重试次数-->
-        <property name="maximumRedeliveries" value="3"/>
+        <property name="maximumRedeliveries" value="4"/>
         <!--配置首次重试间隔时间-->
         <property name="initialRedeliveryDelay" value="3000"/>
         <!--配置每次重试间隔时间-->
@@ -25,11 +26,45 @@
     <bean id="connectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
         <property name="targetConnectionFactory" ref="activeMQConnectionFactory"/>
     </bean>
-    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <!--队列模式的jmsTemplate-->
+    <bean id="jmsQueueTemplate" class="org.springframework.jms.core.JmsTemplate">
         <property name="connectionFactory" ref="connectionFactory"/>
-        <property name="defaultDestinationName" value="spring-jms-message"/>
         <property name="sessionAcknowledgeMode" value="1"/>
+        <!--默认为false-->
+        <property name="pubSubDomain" value="false"/>
     </bean>
+    <!--发布订阅模式的jmsTemplate-->
+    <bean id="jmsTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="sessionAcknowledgeMode" value="1"/>
+        <!--pub/sub模式需要配置为true-->
+        <property name="pubSubDomain" value="true"/>
+    </bean>
+    <!--配置Queue监听器方式1-->
+    <!--<bean id="queueListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="messageListener" ref="queueMessageListener"/>
+        <property name="destinationName" value="jms-message-queue"/>
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="sessionAcknowledgeMode" value="1"/>
+    </bean>-->
+    <!--配置Queue监听器方式2-->
+    <jms:listener-container connection-factory="connectionFactory" acknowledge="client" destination-type="queue">
+        <jms:listener destination="message-queue" ref="retryQueueMessageListener" concurrency="3-10"/>
+    </jms:listener-container>
+
+    <!--配置pub/sub监听器方式1-->
+    <!--<bean id="topicListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="messageListener" ref="topicMessageListener"/>
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="topic"/>
+    </bean>
+    <bean id="topic" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg name="name" value="message-topic"/>
+    </bean>-->
+    <!--配置pub/sub监听器方式2-->
+    <jms:listener-container connection-factory="connectionFactory" acknowledge="auto" destination-type="topic">
+        <jms:listener destination="message-topic" ref="topicMessageListener"/>
+    </jms:listener-container>
 
 
 

@@ -12,6 +12,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.IOException;
 
 /**
  * Created with IntelliJ IDEA
@@ -25,14 +26,28 @@ import javax.jms.TextMessage;
 public class SpringJmsTest {
 
     @Resource
-    private JmsTemplate jmsTemplate;
+    private JmsTemplate jmsQueueTemplate;
+    @Resource
+    private JmsTemplate jmsTopicTemplate;
 
     @Test
-    public void sendMessageToQueue() {
-        jmsTemplate.send("jms-message-queue", new MessageCreator() {
+    public void sendMessageToQueue() throws IOException {
+        jmsQueueTemplate.send("message-queue", new MessageCreator() {
             @Override
             public Message createMessage(Session session) throws JMSException {
-                TextMessage textMessage = session.createTextMessage("Hello,spring jms queue message");
+                TextMessage textMessage = session.createTextMessage("Hello, spring queue message");
+                return textMessage;
+            }
+        });
+        System.in.read();
+    }
+
+    @Test
+    public void sendMessageToTopic() {
+        jmsTopicTemplate.send("message-topic", new MessageCreator() {
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+                TextMessage textMessage = session.createTextMessage("Hello, spring topic message");
                 return textMessage;
             }
         });
